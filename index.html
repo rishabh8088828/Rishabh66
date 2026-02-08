@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Diary</title>
+
+<style>
+body{
+  margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  background:linear-gradient(135deg,#6366f1,#22c55e);color:#0f172a;
+}
+.app{max-width:760px;margin:auto;padding:20px}
+.header{text-align:center;color:white;margin-bottom:20px}
+.header h1{margin:0;font-size:24px}
+.card{
+  background:white;border-radius:16px;padding:16px;margin-bottom:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15)
+}
+h3{margin:0 0 10px;font-size:16px}
+label{display:block;margin-top:10px;font-size:13px;color:#374151}
+input,select,textarea{
+  width:100%;margin-top:4px;padding:10px;border-radius:10px;
+  border:1px solid #d1d5db;font-size:14px
+}
+textarea{resize:vertical}
+button{
+  margin-top:12px;padding:12px;width:100%;
+  border:none;border-radius:12px;background:#6366f1;color:white;
+  font-size:16px;cursor:pointer
+}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions button{flex:1}
+.badge{display:inline-block;padding:6px 14px;border-radius:999px;font-size:13px}
+.good{background:#dcfce7;color:#166534}
+.bad{background:#fee2e2;color:#991b1b}
+.small{font-size:12px;color:#6b7280}
+.level{margin-top:6px;font-weight:600}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>div{flex:1}
+.check{
+  display:flex;align-items:center;gap:8px;margin-top:8px;
+  background:#f8fafc;padding:8px;border-radius:10px
+}
+a{color:#2563eb;text-decoration:none}
+hr{border:none;border-top:1px solid #e5e7eb;margin:10px 0}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<div class="header">
+  <h1>💖kya haal reyyu(chikni)😁 Personal Health Diary 🩶</h1>
+  <div id="today"></div>
+</div>
+
+<!-- STATUS -->
+<div class="card">
+  <div id="msg" class="small">
+    🌸 Aap akele nahi ho - I am always for you no matter what 🤍
+  </div>
+  <div id="status" class="badge">—</div>
+</div>
+
+<!-- SYMPTOMS -->
+<div class="card">
+<h3>Symptoms</h3>
+
+<label>Pain Level</label>
+<input id="pain" type="range" min="0" max="10" value="0"
+ oninput="painVal.innerText=this.value">
+<div class="level">Pain: <span id="painVal">0</span> / 10</div>
+
+<div class="row">
+  <div>
+    <label>Vomiting</label>
+    <select id="vomit"><option>No</option><option>Yes</option></select>
+  </div>
+  <div>
+    <label>Headache</label>
+    <select id="head"><option>No</option><option>Yes</option></select>
+  </div>
+</div>
+
+<label>Motion sickness?</label>
+<select id="motion"><option>No</option><option>Yes</option></select>
+
+<label>Heart Beat</label>
+<select id="heart">
+  <option>Normal</option>
+  <option>Fast</option>
+  <option>Very Fast</option>
+</select>
+</div>
+
+<!-- BLEEDING -->
+<div class="card">
+<h3>🩸 Bleeding</h3>
+
+<label>Any bleeding?</label>
+<select id="bleeding" onchange="toggleBleeding()">
+  <option>No</option><option>Yes</option>
+</select>
+
+<div id="bleedBox" style="display:none">
+  <label>Bleeding from</label>
+  <select id="bleedFrom">
+    <option>Nose</option><option>Mouth</option>
+    <option>Vagina</option><option>Other</option>
+  </select>
+
+  <div class="check">
+    <input type="checkbox" id="internal">
+    <label for="internal">Internal bleeding (if you’re not sure)</label>
+  </div>
+
+  <label>Bleeding details</label>
+  <textarea id="bleedNote"
+   placeholder="Amount, pain, time, anything important"></textarea>
+</div>
+</div>
+
+<!-- PERIOD -->
+<div class="card">
+<h3>🩸 Period Tracker</h3>
+<label>Period Start</label><input type="date" id="pStart">
+<label>Period End</label><input type="date" id="pEnd">
+<label>Cycle Length (days)</label><input type="number" id="pCycle" placeholder="28">
+<button onclick="savePeriod()">Save Period</button>
+<p class="small" id="pInfo"></p>
+</div>
+
+<!-- DAY MOOD -->
+<div class="card">
+<h3>😊 How was your day?</h3>
+<select id="mood">
+  <option>Good 😊</option>
+  <option>Just okay okay 😐</option>
+  <option>Bad 😞</option>
+</select>
+</div>
+
+<!-- NOTES + ACTIONS -->
+<div class="card">
+<h3>📝 Notes</h3>
+<textarea id="note" placeholder="Write freely..."></textarea>
+<div class="actions">
+  <button onclick="save()">Save</button>
+  <button onclick="exportPDF()">Export PDF</button>
+  <button onclick="exportCSV()">Export CSV</button>
+</div>
+</div>
+
+<!-- BACKUP -->
+<div class="card">
+<h3>🔁 Backup / Restore</h3>
+<button onclick="backup()">Backup</button>
+<button onclick="restore()">Restore</button>
+<textarea id="backupBox" placeholder="Backup text appears here"></textarea>
+</div>
+
+<!-- HISTORY -->
+<div class="card">
+<h3>History</h3>
+<div id="history" class="small"></div>
+</div>
+
+<!-- SUPPORT -->
+<div class="card">
+<h3>🆘 Support</h3>
+<p class="small">kabhi bhi lonely feel kro to just drop msg , par call krna 🤍</p>
+<p>📞 <b><a href="tel:+919354858353">+91 93548 58353</a></b></p>
+<p><a href="https://wa.me/919354858353" target="_blank">💬 WhatsApp Support</a></p>
+</div>
+
+</div>
+
+<script>
+today.innerText=new Date().toDateString();
+const DB=JSON.parse(localStorage.healthFull||"[]");
+const good=new Audio("good.mp3");
+const care=new Audio("care.mp3");
+
+function toggleBleeding(){
+  bleedBox.style.display=bleeding.value==="Yes"?"block":"none";
+}
+
+function save(){
+  const bad =
+    bleeding.value==="Yes" ||
+    +pain.value>=6 ||
+    vomit.value==="Yes" ||
+    head.value==="Yes" ||
+    motion.value==="Yes" ||
+    heart.value!=="Normal";
+
+  const entry={
+    date:new Date().toLocaleString(),
+    pain:pain.value,
+    vomiting:vomit.value,
+    headache:head.value,
+    motion:motion.value,
+    heart:heart.value,
+    bleeding:bleeding.value,
+    bleedingFrom:bleeding.value==="Yes"?bleedFrom.value:"-",
+    internal:internal.checked?"Yes":"No",
+    bleedingNote:bleeding.value==="Yes"?bleedNote.value:"-",
+    mood:mood.value,
+    note:note.value
+  };
+  DB.unshift(entry);
+  localStorage.healthFull=JSON.stringify(DB);
+
+  status.className="badge "+(bad?"bad":"good");
+  status.innerText=bad?"Needs Care":"Stable";
+  bad?care.play():good.play();
+  renderHistory();
+}
+
+function renderHistory(){
+  history.innerHTML="";
+  DB.forEach(e=>{
+    history.innerHTML+=`
+      <b>${e.date}</b><br>
+      Pain: ${e.pain}/10 | Mood: ${e.mood}<br>
+      Bleeding: ${e.bleeding} (${e.bleedingFrom})
+      | Internal: ${e.internal}<br>
+      Motion: ${e.motion} | Heart: ${e.heart}<br>
+      Notes: ${e.note}<br><hr>`;
+  });
+}
+renderHistory();
+
+function savePeriod(){
+  const s=new Date(pStart.value);
+  const c=Number(pCycle.value||28);
+  const next=new Date(s); next.setDate(s.getDate()+c);
+  localStorage.period=JSON.stringify({start:pStart.value,end:pEnd.value,cycle:c});
+  pInfo.innerText="Next expected around: "+next.toDateString();
+}
+
+function exportCSV(){
+  const rows=[["Date","Pain","Mood","Bleeding","From","Internal","Notes"]];
+  DB.forEach(e=>rows.push([e.date,e.pain,e.mood,e.bleeding,e.bleedingFrom,e.internal,e.note]));
+  const csv=rows.map(r=>r.join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="health-data.csv"; a.click();
+}
+
+function exportPDF(){
+  let t="HEALTH REPORT\n\n";
+  DB.forEach(e=>{
+    t+=`Date: ${e.date}
+Pain: ${e.pain}/10
+Mood: ${e.mood}
+Bleeding: ${e.bleeding} (${e.bleedingFrom}) Internal:${e.internal}
+Notes: ${e.note}\n\n`;
+  });
+  const w=window.open(""); w.document.write("<pre>"+t+"</pre>"); w.print();
+}
+
+function backup(){ backupBox.value=btoa(JSON.stringify(localStorage)); }
+function restore(){
+  try{
+    const d=JSON.parse(atob(backupBox.value));
+    for(let k in d)localStorage[k]=d[k];
+    location.reload();
+  }catch{alert("Invalid backup");}
+}
+</script>
+
+</body>
+</html>
